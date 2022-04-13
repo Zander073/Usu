@@ -14,19 +14,15 @@ ptb: portfolio object to be built upon, empty initially
 """
 def build_portfolio(ptb):
     transaction_df = pd.read_csv(Constants.TRANSACTION_DATA_PATH)
-
     for index, row in transaction_df.iterrows():
         action = row['action']
         stock = Stock(row['ticker'], row['num_shares'], row['price'])
         cost = stock.num_shares * stock.price
-
         if action == Constants.BUY_ACTION:
             buy(stock, cost, ptb)
         else:
-            sell(stock, cost, ptb)
-          
+            sell(stock, cost, ptb)          
     return ptb 
-
 
 #Returns a list of df objects indexed by date (from transaction history)
 def sort_transaction():
@@ -44,9 +40,14 @@ def stock_portfolio_value(portfolio):
         total_value += (get_price(ticker) * stock.num_shares) 
     return total_value
 
+"""
+Does a lot of the heavy lifting in terms of needed variables.
+stock_portfolio: Dictionary where k = tickers and v = Stock objects
+cash_balance: The available balance of cash that can be used for trading
+performance: A list of closing position values indexed by date.
+"""
 class Portfolio:
     def __init__(self):
-        # Stock portfolio dictionary is keyed by ticker name and its value is a Stock object
         self.stock_portfolio = {}
         self.cash_balance = Constants.INITIAL_CASH_BALANCE
         self.performance = []
@@ -67,11 +68,13 @@ class Stock:
 if __name__=="__main__":
     my_portfolio = build_portfolio(Portfolio())
     my_order = TradeOrder('BUY', 'AAPL', 5)
-    my_order_cost = get_price(my_order.ticker) * my_order.num_shares
+    price = get_price(my_order.ticker)
+    my_order_cost = price * my_order.num_shares
     if validate_trade(my_order, my_portfolio):
-        temp = Stock(my_order.ticker, my_order.num_shares, get_price(my_order.ticker))
+        temp = Stock(my_order.ticker, my_order.num_shares, price)
         buy(temp, my_order_cost, my_portfolio)
+        add_record(my_order.action, my_order.ticker, my_order.num_shares, price)
 
-        print_portfolio(my_portfolio.stock_portfolio)
-        print('Current Portfolio Value: ', '${:,.2f}'.format(stock_portfolio_value(my_portfolio.stock_portfolio)))
-        print('Current Cash Balance: ', '${:,.2f}'.format(my_portfolio.cash_balance)) 
+    print_portfolio(my_portfolio.stock_portfolio)
+    print('Current Portfolio Value: ', '${:,.2f}'.format(stock_portfolio_value(my_portfolio.stock_portfolio)))
+    print('Current Cash Balance: ', '${:,.2f}'.format(my_portfolio.cash_balance))     

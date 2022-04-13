@@ -1,12 +1,28 @@
-from ast import And
+import pandas as pd
 import yfinance as yf
-from portfolio import Portfolio, Stock
 from constants import *
+from csv import writer
+from datetime import datetime
+from portfolio import Portfolio, Stock
+
+
+"""
+Adds trade transaction to user's transaction
+history.
+"""
+def add_record(action, ticker, num_shares, price):
+    date = datetime.today().strftime('%Y-%m-%d')
+    fields = [action, ticker, num_shares, price, date]
+    with open(Constants.TRANSACTION_DATA_PATH, 'a', newline='') as f_object:  
+        writer_object = writer(f_object)
+        writer_object.writerow(fields)  
+        f_object.close()
 
 """
 Returns True if the trade order is valid and
 False otherwise.
 order: A trade order object
+portfolio: A portfolio object
 """
 def validate_trade(order, portfolio):    
     if order.action == Constants.BUY_ACTION:
@@ -17,6 +33,7 @@ def validate_trade(order, portfolio):
         # If the user owns the stock already and the number of shares in the order is less than or equal to what they already own, then true.
         if order.ticker in portfolio.stock_portfolio and (portfolio.stock_portfolio.get(order.ticker).num_shares >= order.num_shares):
             return True
+    print('Error with trade order. Make sure you are within the bounds of your current cash balance.')
     return False
 
 """
@@ -52,8 +69,6 @@ def sell(stock, cost, portfolio):
         portfolio.stock_portfolio[stock.ticker] = Stock(stock.ticker, owned_stock.num_shares - stock.num_shares, owned_stock.price)
         portfolio.cash_balance += cost
 
-
-
 """
 ***Maybe move to file  which handles stock information
 Returns the current price of a stock.
@@ -72,4 +87,3 @@ class  TradeOrder:
         self.action = action
         self.ticker = ticker
         self.num_shares = num_shares
-
