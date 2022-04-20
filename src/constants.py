@@ -8,3 +8,5 @@ class Constants:
     BUY_ACTION = 'BUY'
 
     SELL_ACTION = 'SELL'
+
+    SPACER = "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~"

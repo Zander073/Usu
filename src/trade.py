@@ -1,8 +1,8 @@
 import pandas as pd
 import yfinance as yf
+import sys
 from constants import *
-from csv import writer
-from datetime import datetime
+
 from portfolio import Portfolio, Stock
 
 
@@ -35,6 +35,17 @@ def validate_trade(order, portfolio):
             return True
     print('Error with trade order. Make sure you are within the bounds of your current cash balance.')
     return False
+
+"""
+Checks if the stock ticker exists. Returns true or false.
+ticker: String ticker name to be checked.
+"""
+def check_ticker(ticker):
+    print('Checking ticker...')
+    ticker = yf.Ticker(ticker)
+    if (ticker.info['regularMarketPrice'] == None):
+        return False
+    return True
 
 """
 Either adds stock into portfolio or adds to position
